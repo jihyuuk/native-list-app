@@ -1,17 +1,20 @@
-import { Appbar, Divider, List, Searchbar, Text } from 'react-native-paper';
-import { useState } from 'react';
+import { Appbar, Divider, List, Menu, Searchbar, Text } from 'react-native-paper';
+import * as React from 'react';
 import { View } from 'react-native';
 
 export default function MainPage() {
 
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = React.useState('');
+
+    // 메뉴를 위한거
+    const [visible, setVisible] = React.useState(false);
+    const openMenu = () => setVisible(true);
+    const closeMenu = () => setVisible(false);
 
     return (
         <>
             {/* 헤더 영역 */}
             <Appbar.Header>
-                {/* 햄버거 버튼 */}
-                <Appbar.Action icon="menu" onPress={() => { }} />
 
                 {/* 검색창 */}
                 <Searchbar
@@ -20,6 +23,32 @@ export default function MainPage() {
                     onChangeText={setSearchQuery}
                     style={{ flex: 1 }}
                 />
+
+                {/* 메뉴 버튼 */}
+                <Menu
+                    visible={visible}
+                    onDismiss={closeMenu}
+                    anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} />}
+                    anchorPosition="bottom"
+                    style={{ marginTop: 20 }}
+                >
+                    <Menu.Item
+                        onPress={() => { }}
+                        title="불러오기"
+                        leadingIcon="table-arrow-up"
+                    />
+                    <Menu.Item
+                        onPress={() => { }}
+                        title="내보내기"
+                        leadingIcon="table-arrow-down"
+                    />
+                    <Menu.Item
+                        onPress={() => { }}
+                        title="추가하기"
+                        leadingIcon="plus"
+                    />
+                </Menu>
+
             </Appbar.Header>
 
             {/* 리스트 영역 */}
