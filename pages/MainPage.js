@@ -1,6 +1,7 @@
 import { Appbar, Divider, List, Menu, Searchbar, Text } from 'react-native-paper';
 import * as React from 'react';
 import { View, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import AddItemNodal from '../components/AddItemModal';
 
 export default function MainPage() {
 
@@ -20,11 +21,17 @@ export default function MainPage() {
         item.name.includes(searchQuery.trim())
     );
 
-
     // 메뉴를 위한거
     const [visible, setVisible] = React.useState(false);
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
+
+    //추가하기 모달
+    const [modalVisible, setModalVisible] = React.useState(true);
+    const closeModal = () => setModalVisible(false);
+    const handleAddItem = (newItem) => {
+        setItems(prev => [...prev, newItem]);
+    };
 
     return (
         <>
@@ -48,17 +55,20 @@ export default function MainPage() {
                     style={{ marginTop: 20 }}
                 >
                     <Menu.Item
-                        onPress={() => { }}
+                        onPress={() => { closeMenu(); }}
                         title="불러오기"
                         leadingIcon="table-arrow-up"
                     />
                     <Menu.Item
-                        onPress={() => { }}
+                        onPress={() => { closeMenu(); }}
                         title="내보내기"
                         leadingIcon="table-arrow-down"
                     />
                     <Menu.Item
-                        onPress={() => { }}
+                        onPress={() => {
+                            closeMenu();
+                            setModalVisible(true);
+                        }}
                         title="추가하기"
                         leadingIcon="plus"
                     />
@@ -89,6 +99,8 @@ export default function MainPage() {
 
                 </View>
             </TouchableWithoutFeedback>
+
+            <AddItemNodal modalVisible={modalVisible} closeModal={closeModal} handleAddItem={handleAddItem} />
         </>
     );
 }
