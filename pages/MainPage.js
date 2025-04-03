@@ -1,6 +1,6 @@
 import { Appbar, Divider, List, Menu, Searchbar, Text } from 'react-native-paper';
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, Keyboard, TouchableWithoutFeedback } from 'react-native';
 
 export default function MainPage() {
 
@@ -52,32 +52,34 @@ export default function MainPage() {
             </Appbar.Header>
 
             {/* 리스트 영역 */}
-            <View style={{ flex: 1, padding: 16 }}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{ flex: 1, padding: 16 }}>
 
-                <List.Section>
-                    <List.Item
-                        titleNumberOfLines={5}
-                        title="흑하이덴 2*10*500이고 테스트용으로 기이이이이이이이이일게 써봄"
-                        right={() => <Text style={{ alignSelf: 'center' }}>₩3,000</Text>}
-                    />
+                    <List.Section>
+                        <List.Item
+                            titleNumberOfLines={5}
+                            title="흑하이덴 2*10*500이고 테스트용으로 기이이이이이이이이일게 써봄"
+                            right={() => <Text style={{ alignSelf: 'center' }}>₩3,000</Text>}
+                        />
 
-                    <Divider />
+                        <Divider />
 
-                    <List.Item
-                        title="치마비닐 1*60*200(나일론줄)"
-                        right={() => <Text style={{ alignSelf: 'center' }}>₩3,000</Text>}
-                    />
+                        <List.Item
+                            title="치마비닐 1*60*200(나일론줄)"
+                            right={() => <Text style={{ alignSelf: 'center' }}>₩3,000</Text>}
+                        />
 
-                    <Divider />
+                        <Divider />
 
-                    <List.Item
-                        title="흑색유공 2*150*300(15*25)"
-                        right={() => <Text style={{ alignSelf: 'center' }}>₩3,000</Text>}
-                    />
-                </List.Section>
+                        <List.Item
+                            title="흑색유공 2*150*300(15*25)"
+                            right={() => <Text style={{ alignSelf: 'center' }}>₩3,000</Text>}
+                        />
+                    </List.Section>
 
 
-            </View>
+                </View>
+            </TouchableWithoutFeedback>
         </>
     );
 }
