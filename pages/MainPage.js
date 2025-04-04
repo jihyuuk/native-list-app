@@ -2,6 +2,8 @@ import { Appbar, Divider, List, Menu, Searchbar, Text } from 'react-native-paper
 import * as React from 'react';
 import { View, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import AddItemNodal from '../components/AddItemModal';
+import { Swipeable } from 'react-native-gesture-handler';
+import SwipeRight from '../components/SwipeRight';
 
 export default function MainPage() {
 
@@ -27,7 +29,7 @@ export default function MainPage() {
     const closeMenu = () => setVisible(false);
 
     //추가하기 모달
-    const [modalVisible, setModalVisible] = React.useState(true);
+    const [modalVisible, setModalVisible] = React.useState(false);
     const closeModal = () => setModalVisible(false);
     const handleAddItem = (newItem) => {
         setItems(prev => [...prev, newItem]);
@@ -85,12 +87,17 @@ export default function MainPage() {
 
                         {searchItems.map(item => (
                             <View key={item.id}>
-                                <List.Item
-                                    titleNumberOfLines={5}
-                                    title={item.name}
-                                    right={() => <Text style={{ alignSelf: 'center' }}>₩ {item.price.toLocaleString('ko-KR')}</Text>}
-                                />
-
+                                <Swipeable renderRightActions={() => SwipeRight(item)}>
+                                    <List.Item
+                                        title={item.name}
+                                        style={{backgroundColor:'white'}}
+                                        right={() => (
+                                            <Text style={{ alignSelf: 'center' }}>
+                                                ₩ {item.price.toLocaleString('ko-KR')}
+                                            </Text>
+                                        )}
+                                    />
+                                </Swipeable>
                                 <Divider />
                             </View>
                         ))}
