@@ -18,7 +18,8 @@
     "xlsx": "^0.18.5",
     "expo-file-system": "~18.0.12",
     "expo-sharing": "~13.0.1",
-    "expo-document-picker": "~13.0.3"
+    "expo-document-picker": "~13.0.3",
+    "react-native-gesture-handler": "~2.20.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
