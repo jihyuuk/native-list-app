@@ -2,10 +2,22 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { Button, IconButton, Modal, Portal, Text, TextInput } from 'react-native-paper';
 
-const AddItemNodal = ({ modalVisible, closeModal, addItem }) => {
+const AddItemNodal = ({ modalVisible, closeModal, submit, editTarget }) => {
 
     const [name, setName] = React.useState('');
     const [price, setPrice] = React.useState('');
+
+    //초기화
+    React.useEffect(() => {
+        if (editTarget) {
+            setName(editTarget.name);
+            setPrice(editTarget.price.toLocaleString('ko-KR'));
+        } else {
+            setName('');
+            setPrice('');
+        }
+    }, [modalVisible])
+
 
     const handleSumbit = () => {
         // 빈 값 방지
@@ -13,24 +25,17 @@ const AddItemNodal = ({ modalVisible, closeModal, addItem }) => {
 
         //item 객체 생성
         const newItem = {
-            id: Date.now().toString(),
+            id: editTarget ? editTarget.id : Date.now().toString(),
             name: name.trim(),
             price: Number(price.replace(/,/g, ''))
         };
 
-        //메인 페이지 함수 호출
-        addItem(newItem);
-        close();
-    }
-
-    const close = () => {
-        // 입력값 초기화
-        setName('');
-        setPrice('');
-        //모달 닫기
+        //부모 함수 호출
+        submit(newItem);
         closeModal();
     }
 
+    //가격 콤마 찍는 로직
     const handlePriceChange = (text) => {
         const raw = text.replace(/[^0-9]/g, ''); // 숫자만 추출
         const formatted = Number(raw).toLocaleString('ko-KR'); // 콤마추가
@@ -44,8 +49,8 @@ const AddItemNodal = ({ modalVisible, closeModal, addItem }) => {
 
                 {/* 헤더 영역 */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                    <Text variant="titleMedium">상품 추가</Text>
-                    <IconButton icon="close" onPress={close} />
+                    <Text variant="titleMedium">{editTarget ? '상품 수정' : '상품 추가'}</Text>
+                    <IconButton icon="close" onPress={closeModal} />
                 </View>
 
                 <TextInput
@@ -62,7 +67,7 @@ const AddItemNodal = ({ modalVisible, closeModal, addItem }) => {
                     style={{ marginBottom: 16 }}
                 />
                 <Button mode="contained" onPress={handleSumbit}>
-                    추가하기
+                    {editTarget ? '수정하기' : '추가하기'}
                 </Button>
             </Modal>
         </Portal>

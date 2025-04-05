@@ -2,7 +2,8 @@ import * as React from 'react';
 import { Alert, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
 
-const SwipeRight = ({ item, removeItem, cancleSwipe }) => {
+const SwipeRight = ({ item, removeItem, cancleSwipe, openEditModal }) => {
+
 
     // 삭제
     const handleDelete = () => {
@@ -14,15 +15,14 @@ const SwipeRight = ({ item, removeItem, cancleSwipe }) => {
                 { text: '삭제', style: 'destructive', onPress: () => removeItem(item.id) },
             ]
         );
-    }
+    }    
 
-    // 편집
 
     return (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {/* 편집 버튼 */}
             <View style={{ backgroundColor: 'green', height: '100%', width: 80, justifyContent: 'center', alignItems: 'center' }}>
-                <IconButton icon="pencil" iconColor="white" />
+                <IconButton icon="pencil" iconColor="white" onPress={openEditModal} />
             </View>
 
             {/* 삭제 버튼 */}

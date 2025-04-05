@@ -1,7 +1,7 @@
 import { Appbar, Divider, List, Menu, Searchbar, Text } from 'react-native-paper';
 import * as React from 'react';
 import { View, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import AddItemNodal from '../components/AddItemModal';
+import AddItemNodal from '../components/ItemModal';
 import { Swipeable } from 'react-native-gesture-handler';
 import SwipeRight from '../components/SwipeRight';
 
@@ -33,9 +33,27 @@ export default function MainPage() {
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
 
-    //추가하기 모달
+    //모달
     const [modalVisible, setModalVisible] = React.useState(false);
-    const closeModal = () => setModalVisible(false);
+    const [editTarget, setEditTarget] = React.useState(null);
+
+    const openAddModal = () => {
+        closeMenu();
+        setModalVisible(true);
+    }
+    const openEditModal = (item) => {
+        setEditTarget(item);
+        setModalVisible(true);
+    }
+    const closeModal = () => {
+        setModalVisible(false);
+
+        if (editTarget) {
+            setEditTarget(null);
+            cancleSwipe(editTarget.id);
+        }
+    }
+
 
     //추가
     const addItem = (newItem) => {
@@ -45,6 +63,10 @@ export default function MainPage() {
     const removeItem = (id) => {
         setItems(prev => prev.filter(item => item.id !== id));
     };
+    //수정
+    const editItem = (updateItem) => {
+        setItems(prev => prev.map(item => item.id === updateItem.id ? updateItem : item));
+    }
 
     return (
         <>
@@ -78,10 +100,7 @@ export default function MainPage() {
                         leadingIcon="table-arrow-down"
                     />
                     <Menu.Item
-                        onPress={() => {
-                            closeMenu();
-                            setModalVisible(true);
-                        }}
+                        onPress={openAddModal}
                         title="추가하기"
                         leadingIcon="plus"
                     />
@@ -100,7 +119,7 @@ export default function MainPage() {
                             <View key={item.id}>
                                 <Swipeable
                                     ref={ref => swipeableRefs.current[item.id] = ref}
-                                    renderRightActions={() => <SwipeRight item={item} removeItem={removeItem} cancleSwipe={cancleSwipe} />}>
+                                    renderRightActions={() => <SwipeRight item={item} removeItem={removeItem} cancleSwipe={cancleSwipe} openEditModal={() => openEditModal(item)} />}>
                                     <List.Item
                                         title={item.name}
                                         style={{ backgroundColor: 'white' }}
@@ -120,7 +139,7 @@ export default function MainPage() {
                 </View>
             </TouchableWithoutFeedback>
 
-            <AddItemNodal modalVisible={modalVisible} closeModal={closeModal} addItem={addItem} />
+            <AddItemNodal modalVisible={modalVisible} closeModal={closeModal} submit={editTarget ? editItem : addItem} editTarget={editTarget} />
         </>
     );
 }
