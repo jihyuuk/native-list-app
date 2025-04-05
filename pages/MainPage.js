@@ -14,6 +14,11 @@ export default function MainPage() {
         { id: '3', name: '흑색유공 2*150*300(15*25)', price: 3000 },
     ]);
 
+    //스와이프 
+    const swipeableRefs = React.useRef({});
+    const cancleSwipe = (itemId) => {
+        swipeableRefs.current[itemId]?.close();
+    }
 
     //검색어
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -31,8 +36,14 @@ export default function MainPage() {
     //추가하기 모달
     const [modalVisible, setModalVisible] = React.useState(false);
     const closeModal = () => setModalVisible(false);
-    const handleAddItem = (newItem) => {
+
+    //추가
+    const addItem = (newItem) => {
         setItems(prev => [...prev, newItem]);
+    };
+    //삭제
+    const removeItem = (id) => {
+        setItems(prev => prev.filter(item => item.id !== id));
     };
 
     return (
@@ -87,10 +98,12 @@ export default function MainPage() {
 
                         {searchItems.map(item => (
                             <View key={item.id}>
-                                <Swipeable renderRightActions={() => SwipeRight(item)}>
+                                <Swipeable
+                                    ref={ref => swipeableRefs.current[item.id] = ref}
+                                    renderRightActions={() => <SwipeRight item={item} removeItem={removeItem} cancleSwipe={cancleSwipe} />}>
                                     <List.Item
                                         title={item.name}
-                                        style={{backgroundColor:'white'}}
+                                        style={{ backgroundColor: 'white' }}
                                         right={() => (
                                             <Text style={{ alignSelf: 'center' }}>
                                                 ₩ {item.price.toLocaleString('ko-KR')}
@@ -107,7 +120,7 @@ export default function MainPage() {
                 </View>
             </TouchableWithoutFeedback>
 
-            <AddItemNodal modalVisible={modalVisible} closeModal={closeModal} handleAddItem={handleAddItem} />
+            <AddItemNodal modalVisible={modalVisible} closeModal={closeModal} addItem={addItem} />
         </>
     );
 }

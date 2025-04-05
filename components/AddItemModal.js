@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { Button, IconButton, Modal, Portal, Text, TextInput } from 'react-native-paper';
 
-const AddItemNodal = ({ modalVisible, closeModal, handleAddItem }) => {
+const AddItemNodal = ({ modalVisible, closeModal, addItem }) => {
 
     const [name, setName] = React.useState('');
     const [price, setPrice] = React.useState('');
@@ -19,7 +19,7 @@ const AddItemNodal = ({ modalVisible, closeModal, handleAddItem }) => {
         };
 
         //메인 페이지 함수 호출
-        handleAddItem(newItem);
+        addItem(newItem);
         close();
     }
 
