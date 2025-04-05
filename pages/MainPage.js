@@ -1,18 +1,52 @@
 import { Appbar, Divider, List, Menu, Searchbar, Text } from 'react-native-paper';
 import * as React from 'react';
-import { View, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
 import AddItemNodal from '../components/ItemModal';
 import { Swipeable } from 'react-native-gesture-handler';
 import SwipeRight from '../components/SwipeRight';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const STORAGE_KEY = '@item_list';
 
 export default function MainPage() {
 
     //데이터
-    const [items, setItems] = React.useState([
-        { id: '1', name: '흑하이덴 2*10*500', price: 3000 },
-        { id: '2', name: '치마비닐 1*60*200(나일론줄)', price: 3000 },
-        { id: '3', name: '흑색유공 2*150*300(15*25)', price: 3000 },
-    ]);
+    const [items, setItems] = React.useState([]);
+
+    //스토리지에서 불러오기
+    const loadStorage = async () => {
+        try {
+            const stroageValue = await AsyncStorage.getItem(STORAGE_KEY);
+            if (stroageValue) setItems(JSON.parse(stroageValue));
+        } catch (e) {
+            Alert.alert('❌ 불러오기 실패', e.message);
+        }
+    };
+    //스토리지에 저장
+    const saveStorage = async () => {
+        try {
+            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        } catch (e) {
+            Alert.alert('❌ 저장 실패', e.message);
+        }
+    };
+
+    //데이터 불러오기
+    React.useEffect(() => {
+        loadStorage();
+    }, []);
+
+    //데이터 변경감지 후 자동 저장
+    const isFirst = React.useRef(true);
+    React.useEffect(() => {
+        //처음 데이터 불러올때는 저장 안함
+        if (isFirst.current) {
+            isFirst.current = false;
+            return;
+        }
+        //정상로직
+        saveStorage();
+    }, [items])
 
     //스와이프 
     const swipeableRefs = React.useRef({});
