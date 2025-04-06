@@ -5,6 +5,7 @@ import AddItemNodal from '../components/ItemModal';
 import { Swipeable } from 'react-native-gesture-handler';
 import SwipeRight from '../components/SwipeRight';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { handleExportCSV } from '../utils/csvExport';
 
 const STORAGE_KEY = '@item_list';
 
@@ -79,6 +80,10 @@ export default function MainPage() {
             ]
         );
     }
+    const handleExport = () => {
+        closeMenu();
+        handleExportCSV(items);
+    }
 
 
     //모달
@@ -148,7 +153,7 @@ export default function MainPage() {
                         leadingIcon="table-arrow-up"
                     />
                     <Menu.Item
-                        onPress={() => { closeMenu(); }}
+                        onPress={handleExport}
                         title="내보내기"
                         leadingIcon="table-arrow-down"
                     />
