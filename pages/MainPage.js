@@ -67,6 +67,20 @@ export default function MainPage() {
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
 
+    //메뉴 아이템 핸들러
+    const handleReset = () => {
+        closeMenu();
+        Alert.alert(
+            "🚨 모든 데이터를 삭제할까요?",
+            "\n⚠️ 삭제된 항목은 복구할 수 없습니다. \n\n※ 꼭 데이터 백업 후에 실행해주세요.",
+            [
+                { text: '취소', style: 'cancel' },
+                { text: '완전 삭제', style: 'destructive', onPress: () => setItems([]) },
+            ]
+        );
+    }
+
+
     //모달
     const [modalVisible, setModalVisible] = React.useState(false);
     const [editTarget, setEditTarget] = React.useState(null);
@@ -123,6 +137,11 @@ export default function MainPage() {
                     anchorPosition="bottom"
                     style={{ marginTop: 20 }}
                 >
+                    <Menu.Item
+                        onPress={handleReset}
+                        title="모두삭제"
+                        leadingIcon="database-remove-outline"
+                    />
                     <Menu.Item
                         onPress={() => { closeMenu(); }}
                         title="불러오기"
