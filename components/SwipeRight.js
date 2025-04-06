@@ -11,7 +11,7 @@ const SwipeRight = ({ item, removeItem, cancleSwipe, openEditModal }) => {
             item.name,
             "해당 상품을 삭제하시겠습니까?",
             [
-                { text: '취소', style: 'cancle', onPress: () => cancleSwipe(item.id) },
+                { text: '취소', style: 'cancel', onPress: () => cancleSwipe(item.id) },
                 { text: '삭제', style: 'destructive', onPress: () => removeItem(item.id) },
             ]
         );
