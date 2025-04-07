@@ -1,11 +1,12 @@
 import { Appbar, Divider, List, Menu, Searchbar, Text } from 'react-native-paper';
 import * as React from 'react';
-import { View, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
+import { View, Keyboard, TouchableWithoutFeedback, Alert, TouchableOpacity } from 'react-native';
 import AddItemNodal from '../components/ItemModal';
-import { Swipeable } from 'react-native-gesture-handler';
+import { FlatList, Swipeable } from 'react-native-gesture-handler';
 import SwipeRight from '../components/SwipeRight';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { handleExportCSV } from '../utils/csvExport';
+import { handleImportCSV } from '../utils/csvImport';
 
 const STORAGE_KEY = '@item_list';
 
@@ -54,6 +55,10 @@ export default function MainPage() {
     const cancleSwipe = (itemId) => {
         swipeableRefs.current[itemId]?.close();
     }
+    //롱프레스
+    const [itemMenuVisible, setItemMenuVisible] = React.useState(false);
+    const [itemMenuAnchor, setItemMenuAnchor] = React.useState({ x: 0, y: 0 });
+    const [selectedItem, setSelectedItem] = React.useState(null);
 
     //검색어
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -83,6 +88,10 @@ export default function MainPage() {
     const handleExport = () => {
         closeMenu();
         handleExportCSV(items);
+    }
+    const handleImport = () => {
+        closeMenu();
+        handleImportCSV(setItems);
     }
 
 
@@ -135,34 +144,36 @@ export default function MainPage() {
                 />
 
                 {/* 메뉴 버튼 */}
-                <Menu
-                    visible={visible}
-                    onDismiss={closeMenu}
-                    anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} />}
-                    anchorPosition="bottom"
-                    style={{ marginTop: 20 }}
-                >
-                    <Menu.Item
-                        onPress={handleReset}
-                        title="모두삭제"
-                        leadingIcon="database-remove-outline"
-                    />
-                    <Menu.Item
-                        onPress={() => { closeMenu(); }}
-                        title="불러오기"
-                        leadingIcon="table-arrow-up"
-                    />
-                    <Menu.Item
-                        onPress={handleExport}
-                        title="내보내기"
-                        leadingIcon="table-arrow-down"
-                    />
-                    <Menu.Item
-                        onPress={openAddModal}
-                        title="추가하기"
-                        leadingIcon="plus"
-                    />
-                </Menu>
+                <View>
+                    <Menu
+                        visible={visible}
+                        onDismiss={closeMenu}
+                        anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} />}
+                        anchorPosition="bottom"
+                        style={{ marginTop: 20 }}
+                    >
+                        <Menu.Item
+                            onPress={handleReset}
+                            title="모두삭제"
+                            leadingIcon="database-remove-outline"
+                        />
+                        <Menu.Item
+                            onPress={handleImport}
+                            title="불러오기"
+                            leadingIcon="table-arrow-up"
+                        />
+                        <Menu.Item
+                            onPress={handleExport}
+                            title="내보내기"
+                            leadingIcon="table-arrow-down"
+                        />
+                        <Menu.Item
+                            onPress={openAddModal}
+                            title="추가하기"
+                            leadingIcon="plus"
+                        />
+                    </Menu>
+                </View>
 
             </Appbar.Header>
 
@@ -171,28 +182,100 @@ export default function MainPage() {
                 <View style={{ flex: 1, padding: 16 }}>
 
                     {/* 아이템 리스트 */}
-                    <List.Section>
+                    <FlatList
+                        data={searchItems}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) =>
+                            //1. 스와이프 방법
+                            // <Swipeable
+                            //     ref={ref => swipeableRefs.current[item.id] = ref}
+                            //     renderRightActions={() =>
+                            //         <SwipeRight
+                            //             item={item}
+                            //             removeItem={removeItem}
+                            //             cancleSwipe={cancleSwipe}
+                            //             openEditModal={() => openEditModal(item)}
+                            //         />
+                            //     }
+                            // >
+                            //     <List.Item
+                            //         title={item.name}
+                            //         style={{
+                            //             backgroundColor: 'white',
+                            //             paddingVertical: 8,
+                            //             borderBottomWidth: 1,
+                            //             borderBottomColor: '#e0e0e0' // 연회색
+                            //         }}
+                            //         right={() => (
+                            //             <Text style={{ alignSelf: 'center' }}>
+                            //                 {item.price.toLocaleString('ko-KR')} 원
+                            //             </Text>
+                            //         )}
+                            //     />
+                            // </Swipeable>
 
-                        {searchItems.map(item => (
-                            <View key={item.id}>
-                                <Swipeable
-                                    ref={ref => swipeableRefs.current[item.id] = ref}
-                                    renderRightActions={() => <SwipeRight item={item} removeItem={removeItem} cancleSwipe={cancleSwipe} openEditModal={() => openEditModal(item)} />}>
-                                    <List.Item
-                                        title={item.name}
-                                        style={{ backgroundColor: 'white' }}
-                                        right={() => (
-                                            <Text style={{ alignSelf: 'center' }}>
-                                                ₩ {item.price.toLocaleString('ko-KR')}
-                                            </Text>
-                                        )}
-                                    />
-                                </Swipeable>
-                                <Divider />
-                            </View>
-                        ))}
+                            <TouchableOpacity
+                                onLongPress={(event) => {
+                                    const { pageX, pageY } = event.nativeEvent;
+                                    setItemMenuAnchor({ x: pageX, y: pageY });
+                                    setSelectedItem(item);
+                                    setItemMenuVisible(true);
+                                }}
+                            >
+                                <List.Item
+                                    title={item.name}
+                                    style={{
+                                        backgroundColor: selectedItem?.id === item.id ? '#f2f2f2' : 'white',
+                                        paddingVertical: 8,
+                                        borderBottomWidth: 1,
+                                        borderBottomColor: '#e0e0e0'
+                                    }}
+                                    right={() => (
+                                        <Text style={{ alignSelf: 'center' }}>
+                                            {item.price.toLocaleString('ko-KR')} 원
+                                        </Text>
+                                    )}
+                                />
+                            </TouchableOpacity>
+                        }
+                        contentContainerStyle={{ paddingBottom: 80 }} // 여백 여유
+                    />
 
-                    </List.Section>
+                    <Menu
+                        visible={itemMenuVisible}
+                        onDismiss={() => {
+                            setItemMenuVisible(false);
+                            setSelectedItem(null); //선택아이템 제거
+                        }}
+                        anchor={itemMenuAnchor}
+                    >
+                        <Menu.Item
+                            onPress={() => {
+                                setItemMenuVisible(false);
+                                setSelectedItem(null); //선택아이템 제거
+                                openEditModal(selectedItem);
+                            }}
+                            title="수정"
+                            leadingIcon="pencil"
+                        />
+                        <Menu.Item
+                            onPress={() => {
+                                setItemMenuVisible(false);
+                                setSelectedItem(null); //선택아이템 제거
+                                Alert.alert(
+                                    selectedItem?.name ?? '',
+                                    '정말 삭제할까요?',
+                                    [
+                                        { text: '취소', style: 'cancel' },
+                                        { text: '삭제', style: 'destructive', onPress: () => removeItem(selectedItem.id) }
+                                    ]
+                                );
+                                setSelectedItem(null);
+                            }}
+                            title="삭제"
+                            leadingIcon="trash-can-outline"
+                        />
+                    </Menu>
 
                 </View>
             </TouchableWithoutFeedback>
