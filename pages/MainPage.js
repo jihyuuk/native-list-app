@@ -1,12 +1,12 @@
-import { Appbar, Divider, List, Menu, Searchbar, Text } from 'react-native-paper';
+import { Appbar, List, Menu, Searchbar, Text } from 'react-native-paper';
 import * as React from 'react';
 import { View, Keyboard, TouchableWithoutFeedback, Alert, TouchableOpacity } from 'react-native';
-import AddItemNodal from '../components/ItemModal';
 import { FlatList, Swipeable } from 'react-native-gesture-handler';
 import SwipeRight from '../components/SwipeRight';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { handleExportCSV } from '../utils/csvExport';
 import { handleImportCSV } from '../utils/csvImport';
+import ItemModal from '../components/ItemModal';
 
 const STORAGE_KEY = '@item_list';
 
@@ -51,14 +51,20 @@ export default function MainPage() {
     }, [items])
 
     //스와이프 
-    const swipeableRefs = React.useRef({});
-    const cancleSwipe = (itemId) => {
-        swipeableRefs.current[itemId]?.close();
-    }
+    // const swipeableRefs = React.useRef({});
+    // const cancleSwipe = (itemId) => {
+    //     swipeableRefs.current[itemId]?.close();
+    // }
+
     //롱프레스
     const [itemMenuVisible, setItemMenuVisible] = React.useState(false);
     const [itemMenuAnchor, setItemMenuAnchor] = React.useState({ x: 0, y: 0 });
     const [selectedItem, setSelectedItem] = React.useState(null);
+    //아이템 메뉴 닫히면 선택 아이템 해제
+    React.useEffect(() => {
+        if (!itemMenuVisible) setSelectedItem(null);
+    }, [itemMenuVisible]);
+
 
     //검색어
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -110,10 +116,10 @@ export default function MainPage() {
     const closeModal = () => {
         setModalVisible(false);
 
-        if (editTarget) {
+        setTimeout(() => {
             setEditTarget(null);
-            cancleSwipe(editTarget.id);
-        }
+            // cancleSwipe(editTarget.id); // 필요하면 여기도 같이
+        }, 400);
     }
 
 
@@ -133,7 +139,7 @@ export default function MainPage() {
     return (
         <>
             {/* 헤더 영역 */}
-            <Appbar.Header>
+            <Appbar.Header style={{ paddingHorizontal: 8 }}>
 
                 {/* 검색창 */}
                 <Searchbar
@@ -148,7 +154,7 @@ export default function MainPage() {
                     <Menu
                         visible={visible}
                         onDismiss={closeMenu}
-                        anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} />}
+                        anchor={<Appbar.Action icon="dots-vertical" onPress={() => { Keyboard.dismiss(); openMenu() }} />}
                         anchorPosition="bottom"
                         style={{ marginTop: 20 }}
                     >
@@ -179,12 +185,18 @@ export default function MainPage() {
 
             {/* 리스트 영역 */}
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{ flex: 1, padding: 16 }}>
+                <View style={{ flex: 1, padding: 8 }}>
 
                     {/* 아이템 리스트 */}
                     <FlatList
                         data={searchItems}
                         keyExtractor={(item) => item.id}
+                        onScroll={Keyboard.dismiss}
+                        initialNumToRender={20}
+                        maxToRenderPerBatch={20}
+                        windowSize={5}
+                        scrollEventThrottle={16}
+                        removeClippedSubviews={true}
                         renderItem={({ item }) =>
                             //1. 스와이프 방법
                             // <Swipeable
@@ -224,6 +236,7 @@ export default function MainPage() {
                             >
                                 <List.Item
                                     title={item.name}
+                                    titleNumberOfLines={5}
                                     style={{
                                         backgroundColor: selectedItem?.id === item.id ? '#f2f2f2' : 'white',
                                         paddingVertical: 8,
@@ -245,14 +258,12 @@ export default function MainPage() {
                         visible={itemMenuVisible}
                         onDismiss={() => {
                             setItemMenuVisible(false);
-                            setSelectedItem(null); //선택아이템 제거
                         }}
                         anchor={itemMenuAnchor}
                     >
                         <Menu.Item
                             onPress={() => {
                                 setItemMenuVisible(false);
-                                setSelectedItem(null); //선택아이템 제거
                                 openEditModal(selectedItem);
                             }}
                             title="수정"
@@ -261,7 +272,6 @@ export default function MainPage() {
                         <Menu.Item
                             onPress={() => {
                                 setItemMenuVisible(false);
-                                setSelectedItem(null); //선택아이템 제거
                                 Alert.alert(
                                     selectedItem?.name ?? '',
                                     '정말 삭제할까요?',
@@ -280,7 +290,7 @@ export default function MainPage() {
                 </View>
             </TouchableWithoutFeedback>
 
-            <AddItemNodal modalVisible={modalVisible} closeModal={closeModal} submit={editTarget ? editItem : addItem} editTarget={editTarget} />
+            <ItemModal modalVisible={modalVisible} closeModal={closeModal} submit={editTarget ? editItem : addItem} editTarget={editTarget} />
         </>
     );
 }
